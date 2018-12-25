@@ -70,7 +70,7 @@
     width: 70px;
     height: 30px;
 }
-.import-btn, .load-project-btn{
+.cancel-project-btn, .load-project-btn{
     background-image: -webkit-linear-gradient(top, #2358ce 0%, #5275ce 50%, #436dca 50%, #487af1 100%);
     border: 1px solid #172d6e;
     border-bottom: 1px solid #0e1d45;
@@ -80,7 +80,19 @@
     text-align: center;
     width: 120px;
     height: 30px;
-    margin-left:190px; 
+    /* margin-left:190px;  */
+    cursor: pointer;
+    outline: none;
+}
+
+.cancel-project-btn {
+    margin-left: 165px;
+    background-image: -webkit-linear-gradient(top, gray 0%, #DDD 50%, #DDD 50%, #DDD 100%);
+    
+}
+
+.load-project-btn {
+    margin-left: 15px;
 }
 /* Modal Content */
 .modal-content {
