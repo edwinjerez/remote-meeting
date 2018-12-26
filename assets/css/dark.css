@@ -2,10 +2,15 @@ button {
 	color: #aaa;
 	background-color: #222;
 	border: 0px;
-	padding: 5px 8px;
+	padding: 8px 18px;
 	/* text-transform: uppercase; */
 	cursor: pointer;
 	outline: none;
+}
+
+button:hover {
+    background: black;
+    color: white;
 }
 
 	button.selected {

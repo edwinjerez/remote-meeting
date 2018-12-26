@@ -35,17 +35,20 @@ a {
   }
   
   a.toggle-nav {
-    top: 15px;
+    top: 10px;
     /* right: 15px; */
     position: absolute;
     color: #828488;
     line-height: 25px;
     font-size: 22px;
-    background: #2d323e;
-    padding: 3px 5px;
-    border-radius: 1px;
-  }
-  
+    /* background: #2d323e; */
+    padding: 7px 9px;
+    border-radius: 50%;
+}
+
+  a.toggle-nav:hover {
+    background: #34373e;
+}
   .header > .left-head {
     width: 200px;
     display: block;
@@ -62,12 +65,14 @@ a {
     padding:10px 0px 10px 15px;
    }
   .nice-nav {
+    position: fixed;
     clear:both;
     width: 160px;
     background: #2d323e;
     height: 100%;
-    transition:all 0.4s ease-in-out 0s;
+    transition: all 0.4s;
     float:left;
+    z-index: 100;
   }
 
   .nice-nav * {
@@ -109,7 +114,7 @@ a {
   
   .nice-nav li.child-menu span.toggle-right {
     text-align: right;
-    float: right;
+    /* float: right; */
     display: inline-block;
     position: absolute;
     right: 0;
@@ -156,7 +161,7 @@ a {
 .sexytabs > ul {
     text-align: center;
     font-weight: 500;
-    margin: 8px 0 0;
+    margin: 18px 0 0;
     padding: 0;
     position: relative;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
@@ -167,7 +172,7 @@ a {
     background: #fafafa;
     padding: 0.6em 0;
     position: relative;
-    width: 33%;
+    width: 30%;
     margin: 0 0 0 -4px;
   }
   .sexytabs > ul > li:before, .sexytabs > ul > li:after {
@@ -267,24 +272,103 @@ a {
     margin: auto;
   }
   .contents {
-    padding: 20px 10px;
+    padding: 12px 10px;
     min-height: 300px;
   }
   .darkpage {
+    border-radius: 15px;
     background: #333;
     color: white;
-    width: 200px;
-    box-shadow: 0 0 2px 0 rgba(0,0,0,0.12), 0 2px 2px 0 rgba(0,0,0,0.24)
+    width: 250px;
+    box-shadow: 0 0 2px 0 rgba(0,0,0,0.12), 0 2px 2px 0 rgba(0,0,0,0.24);
+    transition: all 0.3s;
+    border: solid 2px white;
   }
   .darkpage, .lightpage {
     padding: 50px 0;
   }
+
+  .display-panel {
+      top: 120px;
+  }
+
+  .control-panel {
+      top: 170px;
+  }
+
+  .control-panel .icon-panel {
+    width: 200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .icon-panel i {
+      font-size: 30px;
+      margin-left: 25px;
+      cursor: pointer;
+  }
+
+  .icon-panel i:first-child {
+      margin-left: 0px;
+  }
+
+  #parti-list {
+      margin-top: 20px;
+  }
+
+  #parti-list i {
+    float: right;
+    font-size: 20px;
+    margin-left: 10px;
+    margin-top: 4px;
+  }
+  .darkpage:after {
+    content: " ";
+    position: absolute;
+    left: -10px;
+    top: 55px;
+    border-top: 10px solid transparent;
+    border-right: 10px solid white;
+    border-left: none;
+    border-bottom: 10px solid transparent;
+}
+
   @media screen and (min-width: 1000px) {
     .darkpage, .lightpage {
         position: fixed;
-        left: 160px;
+        left: -255px;
         padding: 0;
         z-index: 10;
     }
   }
   /*****************************************************************************************/
+
+  .darkpage ul {
+      padding-left: 0px;
+  }
+
+
+  .contents li {
+    list-style-type: none;
+    width: 100%;
+    float: left;
+    border-bottom: solid 1px white;
+    padding: 5px;
+  }
+
+  .contents li:first-child {
+      border-top: solid 1px white;
+  }
+  .contents li:hover {
+      cursor: pointer;
+      background: gray;
+  }
+
+  .contents span {
+      float: left;
+      padding-top: 6px;
+  }
+  .contents li button {
+      float: right;
+  }
+

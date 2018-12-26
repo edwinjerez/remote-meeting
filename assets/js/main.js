@@ -1,5 +1,6 @@
 var project_table;
 var selected_project_id = null;
+var playing = false;
 
 function closeDialog() {
     project_table.page( 'first' ).draw('page');
@@ -8,18 +9,60 @@ function closeDialog() {
     $("#modal_projects").css("display",'none');
 }
 
+function toggleLeft( $cls, $isHide = false) {
+    $(".darkpage").css('left', '-255px');
+    if ( $isHide ) {
+        $('.' + $cls).css('left', '-255px');
+        return;
+    }
+    if ( $('.' + $cls).css('left') == '170px' ) {
+        $('.' + $cls).css('left', '-255px');
+    } else {
+        $('.' + $cls).css('left', '170px');
+    }
+}
 $(document).ready( function() {
 
+    // document.getElementById("frame-content").src = "http://www.decans.cn/stl-operation/";
+    // $("#frame-content").src = "http://www.decans.cn/stl-operation/";
     $height = window.innerHeight - 56;
     $(".nice-nav").css('height', $height + 'px');
     $(".body-part").css('height', ($height - 3) + 'px');
     $(".body-back").css('height', $height + 'px');
+
+    $('svg').click(function() {
+        playing = !playing;
+        var animation = playing ? 'stop' : 'play';
+        $('#animate_to_' + animation).get(0).beginElement();
+      });
 
     $(".sexytabs").tabs({ 
         show: { effect: "slide", direction: "left", duration: 200, easing: "easeOutBack" } ,
         hide: { effect: "slide", direction: "right", duration: 200, easing: "easeInQuad" } 
     });
     
+    $(".display-btn").click( function() {
+        toggleLeft('display-panel');
+    });
+
+    $(".control-btn").click( function() {
+        toggleLeft('control-panel');
+    });
+
+    $("a.toggle-nav").click( function() {
+        // toggle left bar
+        if ( $(".nice-nav").css('left') == '0px' )  {
+            $(".nice-nav").css('left', '-160px');
+            toggleLeft('darkpage', true);
+            $(".body-part").css('width', '100%');
+            $(".body-part").css('margin-left', '0px');
+        }  else {
+            $(".nice-nav").css('left', '0px');
+            $(".body-part").css('width', "calc( 100% - 160px )");
+            $(".body-part").css('margin-left', '160px');
+        }
+    });
+
     $(".load-project-btn").on('click', function() {
         if ( selected_project_id == null ) {
             swal({
@@ -92,9 +135,9 @@ $(document).ready( function() {
     $(".cancel-project-btn").click( function() {
         location.href = 'https://www.decans.cn';
     })
-    // window.onclick = function(event) {
-    //     if (event.target == document.getElementById("modal_implant") || event.target == document.getElementById("modal_projects")) {
-    //       $("#modal_projects").css("display",'none');
-    //     }
-    // };
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("frame-content") || event.target == document.getElementsByClassName("body-back")[0] ) {
+            $(".darkpage").css('left', '-255px');
+        }
+    };
 })
