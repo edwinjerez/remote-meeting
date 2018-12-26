@@ -1,0 +1,290 @@
+.left-nav-bar {
+    width: 40px;
+    height: 100%;
+}
+
+/* Left Side Bar CSS */
+.nice-nav li {
+    list-style-type: none;
+}
+a {
+    text-decoration: none;
+  }
+  :after, :before {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+  }
+  /*common*/
+  
+  .pad-15 {
+    padding: 15px;
+  }
+  
+  .clear {
+    clear: both; 
+  }
+  .clear:after, .clear:before{ 
+      content: " ";
+     display: table;
+  }
+  .header {
+    min-height: 55px;
+    background: #273135;
+    border-bottom: 1px solid #273135;
+  }
+  
+  a.toggle-nav {
+    top: 15px;
+    /* right: 15px; */
+    position: absolute;
+    color: #828488;
+    line-height: 25px;
+    font-size: 22px;
+    background: #2d323e;
+    padding: 3px 5px;
+    border-radius: 1px;
+  }
+  
+  .header > .left-head {
+    width: 200px;
+    display: block;
+    background:#20282B;
+    position:relative;
+  }
+  .header > .left-head .logo img{
+    margin-left: -10px;
+    max-width:150px;
+    width:100%;
+  }
+  .header > .left-head .logo{
+    background: #273135;
+    padding:10px 0px 10px 15px;
+   }
+  .nice-nav {
+    clear:both;
+    width: 160px;
+    background: #2d323e;
+    height: 100%;
+    transition:all 0.4s ease-in-out 0s;
+    float:left;
+  }
+
+  .nice-nav * {
+      font-family: cursive;
+  }
+  .nice-nav.open {
+      margin-left: -200px;
+      display: block;
+  }
+
+  .nice-nav > ul {
+      padding-left: 0px;
+  }
+  .nice-nav > .user-info {
+      padding: 10px 15px;
+      color: #fff;
+      border-bottom: 1px solid #ddd;
+      min-height: 41px;
+  }
+   .nice-nav .user-info .user-name,
+  .nice-nav .user-info img{float:left;}
+  
+  
+  .nice-nav> .user-info > .user-name {
+    padding: 0px 10px;
+  }
+  
+  .user-info > .user-name h5 {
+    text-transform: uppercase;
+    font-size: 16px;
+  }
+  
+  .user-info > .user-name span {
+    font-size: 80%;
+    color: #555;
+    font-style: italic;
+  }
+  
+  
+  .nice-nav li.child-menu span.toggle-right {
+    text-align: right;
+    float: right;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    padding: 15px;
+    top: 0;
+    background: #2d323e;
+    bottom: 0;
+  }
+  
+  .nice-nav ul li a {
+    padding: 12px 12px 12px 20px;
+    background: #2d323e;
+    border-bottom: 1px solid #ddd;
+    display: block;
+    color: #fff;
+    position: relative;
+  }
+  
+  .nice-nav ul .lbl-r i {
+      margin-right: 5px;
+  }
+  .nice-nav ul li a:hover {
+      background: #039be5;
+      border-top-right-radius: 40px;
+      border-bottom-right-radius: 40px;
+  }
+  .arr-right {
+      float: right;
+  }
+  .nice-nav ul li.child-menu ul {
+    background: #aaa;
+    display: none;
+  }
+  
+  .nice-nav ul li.child-menu ul li a {
+    background: #273135;
+    padding: 10px 20px;
+  }
+  /*note*/
+  /*Logo Form Freepic*/
+ 
+/* Sexy Tab CSS */
+/*****************************************************************************************/
+.sexytabs > ul {
+    text-align: center;
+    font-weight: 500;
+    margin: 8px 0 0;
+    padding: 0;
+    position: relative;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+  .sexytabs > ul > li {
+    display: inline-block;
+    background: #fafafa;
+    padding: 0.6em 0;
+    position: relative;
+    width: 33%;
+    margin: 0 0 0 -4px;
+  }
+  .sexytabs > ul > li:before, .sexytabs > ul > li:after {
+    opacity: 0;
+    transition: 0.3s ease;
+  }
+  .sexytabs > ul > li.ui-tabs-active:before, .sexytabs > ul > li.ui-tabs-active:after, .sexytabs > ul > li.ui-state-hover:before, .sexytabs > ul > li.ui-state-hover:after, .sexytabs > ul > li.ui-state-focus:before, .sexytabs > ul > li.ui-state-focus:after {
+    opacity: 1;
+  }
+  .sexytabs > ul > li:before, .sexytabs > ul > li.ui-state-active.ui-state-hover:before, .sexytabs > ul > li.ui-state-active.ui-state-focus:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    box-shadow: 0 2px 3px rgba(22, 195, 255, 0.5);
+    top: 50%;
+    bottom: 0px;
+    left: 5px;
+    right: 5px;
+    border-radius: 100px / 10px;
+  }
+  .sexytabs > ul > li:after, .sexytabs > ul > li.ui-state-active.ui-state-hover:after, .sexytabs > ul > li.ui-state-active.ui-state-focus:after {
+    content: "";
+    background: #fafafa;
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    left: 50%;
+    bottom: -6px;
+    margin-left: -6px;
+    transform: rotate(45deg);
+    box-shadow: inset 3px 3px 3px rgba(22, 195, 255, 0.5), inset 1px 1px 1px rgba(0, 0, 0, 0.3);
+  }
+  .sexytabs > ul > li.ui-state-hover:before, .sexytabs > ul > li.ui-state-focus:before {
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+  }
+  .sexytabs > ul > li.ui-state-hover:after, .sexytabs > ul > li.ui-state-focus:after {
+    box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.2), inset 1px 1px 1px rgba(0, 0, 0, 0.3);
+  }
+  /* .sexytabs > ul > li.ui-state-focus a {
+    text-decoration: underline;
+  } */
+  .sexytabs > ul > li:focus {
+    outline: none;
+  }
+  .sexytabs > ul > li a {
+    color: #444;
+    text-decoration: none;
+  }
+  .sexytabs > ul > li a:focus {
+    outline: none;
+  }
+  .sexytabs > ul > li a span {
+    position: relative;
+    top: -0.5em;
+  }
+  .sexytabs.dark > ul {
+    border-bottom-color: rgba(255, 255, 255, 0.3);
+  }
+  .sexytabs.dark > ul > li {
+    background: #333;
+  }
+  .sexytabs.dark > ul > li:before, .sexytabs.dark > ul > li.ui-state-active.ui-state-hover:before, .sexytabs.dark > ul > li.ui-state-active.ui-state-focus:before {
+    box-shadow: 0 2px 3px rgba(255, 255, 255, 0.3);
+  }
+  .sexytabs.dark > ul > li:after, .sexytabs.dark > ul > li.ui-state-active.ui-state-hover:after, .sexytabs.dark > ul > li.ui-state-active.ui-state-focus:after {
+    background: #333;
+    box-shadow: inset 3px 3px 3px rgba(255, 255, 255, 0.3), inset 1px 1px 1px rgba(255, 255, 255, 0.5);
+  }
+  .sexytabs.dark > ul > li.ui-state-hover:before, .sexytabs.dark > ul > li.ui-state-focus:before {
+    box-shadow: none;
+  }
+  .sexytabs.dark > ul > li.ui-state-hover:after, .sexytabs.dark > ul > li.ui-state-focus:after {
+    box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.4);
+  }
+  .sexytabs.dark > ul > li a {
+    color: white;
+  }
+  img {
+    width: 60px;
+    float: left;
+    margin: 0 1em 0 0;
+    border-radius: 3px;
+  }
+  body {
+    font-size: 1em;
+    background: #fafafa;
+    font-family: Lato;
+    font-weight: 300;
+  }
+  h1 {
+    text-align: center;
+    font-size: 20px;
+  }
+  .sexytabs {
+    width: 100%;
+    /* min-width: 300px; */
+    margin: auto;
+  }
+  .contents {
+    padding: 20px 10px;
+    min-height: 300px;
+  }
+  .darkpage {
+    background: #333;
+    color: white;
+    width: 200px;
+    box-shadow: 0 0 2px 0 rgba(0,0,0,0.12), 0 2px 2px 0 rgba(0,0,0,0.24)
+  }
+  .darkpage, .lightpage {
+    padding: 50px 0;
+  }
+  @media screen and (min-width: 1000px) {
+    .darkpage, .lightpage {
+        position: fixed;
+        left: 160px;
+        padding: 0;
+        z-index: 10;
+    }
+  }
+  /*****************************************************************************************/

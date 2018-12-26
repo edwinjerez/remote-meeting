@@ -86,13 +86,14 @@
 }
 
 .cancel-project-btn {
-    margin-left: 165px;
+    color: gray;
+    margin-left: 155px;
     background-image: -webkit-linear-gradient(top, gray 0%, #DDD 50%, #DDD 50%, #DDD 100%);
     
 }
 
 .load-project-btn {
-    margin-left: 15px;
+    margin-left: 35px;
 }
 /* Modal Content */
 .modal-content {

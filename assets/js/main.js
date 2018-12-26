@@ -10,7 +10,29 @@ function closeDialog() {
 
 $(document).ready( function() {
 
+    $height = window.innerHeight - 56;
+    $(".nice-nav").css('height', $height + 'px');
+    $(".body-part").css('height', ($height - 3) + 'px');
+    $(".body-back").css('height', $height + 'px');
 
+    $(".sexytabs").tabs({ 
+        show: { effect: "slide", direction: "left", duration: 200, easing: "easeOutBack" } ,
+        hide: { effect: "slide", direction: "right", duration: 200, easing: "easeInQuad" } 
+    });
+    
+    $(".load-project-btn").on('click', function() {
+        if ( selected_project_id == null ) {
+            swal({
+                title: "No Project!",
+                text: "Please select a project!",
+                type: "error",
+                background: '#000',
+                showConfirmButton: false,
+              });
+            return;
+        }
+        closeDialog();
+    })
     project_table = $("#project-table").DataTable({
         "paging":   true,
         "ordering": false,
@@ -65,10 +87,14 @@ $(document).ready( function() {
     });
 
 
-    $("#modal_projects").css("display",'block');
-    window.onclick = function(event) {
-        if (event.target == document.getElementById("modal_implant") || event.target == document.getElementById("modal_projects")) {
-          $("#modal_projects").css("display",'none');
-        }
-    };
+    // $("#modal_projects").css("display",'block');
+
+    $(".cancel-project-btn").click( function() {
+        location.href = 'https://www.decans.cn';
+    })
+    // window.onclick = function(event) {
+    //     if (event.target == document.getElementById("modal_implant") || event.target == document.getElementById("modal_projects")) {
+    //       $("#modal_projects").css("display",'none');
+    //     }
+    // };
 })
