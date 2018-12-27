@@ -60,6 +60,17 @@ a {
     max-width:150px;
     width:100%;
   }
+  .header > .left-header .logo {
+    float: left;
+  }
+  .logo h2 {
+    width: 80%;
+    float: left;
+    color: white;
+    margin: 4px 0px 0px 0px;
+    cursor: pointer;
+    text-align: center;
+  }
   .header > .left-head .logo{
     background: #273135;
     padding:10px 0px 10px 15px;
@@ -289,14 +300,17 @@ a {
   }
 
   .display-panel {
-      top: 120px;
+      top: 100px;
   }
 
   .control-panel {
-      top: 170px;
+      top: 150px;
   }
 
-  .control-panel .icon-panel {
+  .record-panel {
+    top: 200px;
+  }
+  .icon-panel {
     width: 200px;
     margin: 0 auto;
     text-align: center;
@@ -308,6 +322,26 @@ a {
       cursor: pointer;
   }
 
+  .media-body, .media-left, .media-right {
+      display: table-cell;
+      vertical-align: top;
+  }
+  .media-body {
+      width: 10000px;
+  }
+
+  .media, .media-body {
+      zoom: 1;
+      overflow: hidden;
+  }
+
+  .media-body span {
+      display: block;
+  }
+
+  .media-right, .media>.pull-right {
+      padding-left: 10px;
+  }
   .icon-panel i:first-child {
       margin-left: 0px;
   }
@@ -347,6 +381,10 @@ a {
       padding-left: 0px;
   }
 
+  .record-list input {
+    max-width: 150px;
+    height: 25px;
+  }
 
   .contents li {
     list-style-type: none;

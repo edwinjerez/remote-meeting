@@ -25,7 +25,7 @@
 <div class="header">
   <div class="left-head">
  	<div class="logo">
-      <img src="http://cdns2.freepik.com/media/img/logo.png">
+	 	<h2>Skyortho</h2>
     </div>
 	<a href="#" class="toggle-nav"><i class="fas fa-bars"></i></a>
 	</div>
@@ -78,7 +78,7 @@
 </div>
 <div class="nice-nav">
   <div class="user-info clear">
-    <h2>Skyortho</h2>
+    
   </div>
   <div class="clear"></div>
   <ul>
@@ -96,30 +96,61 @@
 <div class="darkpage display-panel">
 	<div class="sexytabs dark">
 		<ul>
-			<li><a href="#tab_dicom">
+			<li><a href="#tab_project">
 			<span>Dicom</span></a></li>
-			<li><a href="#tab_stl">
-			<span>STL</span></a></li>
 			<li><a href="#tab_share">
 			<span>Share</span></a></li>
 		</ul>
 		<div class="contents">
-			<div id="tab_dicom">
+			<div id="tab_project">
 				<button class='selected button'>Refresh</button>
 				<ul class='dcm-list'>
-					<li><span>dicom001.dcm</span><button class='button'>Display</button>
-					<li><span>dicom002.dcm</span><button class='button'>Display</button>
-				</ul>
-			</div>
-			<div id="tab_stl">
-				<button class='selected button'>Refresh</button>
-				<ul class='dcm-list'>
-					<li><span>Left.stl</span><button class='button'>Display</button>
-					<li><span>Right.stl</span><button class='button'>Display</button>
+					<li><div class="media-body"><span>Test_02_股骨_近端骨折</span></div><div class="media-right"><button class='button dcm-btn'>Dcm Viewer</button></div>
+					<li><div class="media-body"><span>Left.stl</span></div><div class="media-right"><button class='button stl-btn'>Stl Viewer</button></div>
 				</ul>
 			</div>
 			<div id="tab_share">
-				share
+				<h2>Start Share Screen</h2>
+				<svg viewbox="0 0 140 140">
+					<circle cx="70" cy="70" r="65" style="fill:#fff;stroke:#ddd"/>
+					<polygon id="shape" points="50,40 100,70 100,70 50,100, 50,40" style="fill:#aaa;">
+						<animate 
+						id="animate1_to_stop" 
+						begin="indefinite" 
+						fill="freeze" 
+						attributeName="points" 
+						dur="500ms" 
+						to="45,45 95,45 95,95, 45,95 45,45"
+						keySplines="
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1"
+						keyTimes="0;0.22;0.33;0.55;0.66;0.88;1" 
+						calcMode="spline"
+						/>
+						
+						<animate 
+						id="animate1_to_play" 
+						begin="indefinite" 
+						fill="freeze" 
+						attributeName="points" 
+						dur="500ms" 
+						to="50,40 100,70 100,70 50,100, 50,40" 
+						keySplines="
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1; 
+							0.1 0.8 0.2 1"
+						keyTimes="0;0.22;0.33;0.55;0.66;0.88;1" 
+						calcMode="spline"
+						/>
+					</polygon>
+				</svg>
 			</div>
 		</div>
 	</div>
@@ -136,6 +167,19 @@
 				<li><span>漓江</span><i class="fas fa-volume-up"></i><button class='button'>Chairman</button></li>
 				<li><span>李丽</span><i class="fas fa-volume-up"></i><button class='button'>Chairman</button></li>
 				<li><span>往里</span><i class="fas fa-volume-up"></i><button class='button'>Chairman</button></li>
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="darkpage record-panel">
+	<div class="contents">
+		<div class="icon-panel">
+			<i class="fas fa-play"></i>
+			<i class="fas fa-stop"></i>
+		</div>
+		<div id="parti-list">
+			<ul class='record-list'>
+				<li><input type="text" value="project_18382834.mp4"><button class='button'>Save</button></li>
 			</ul>
 		</div>
 	</div>

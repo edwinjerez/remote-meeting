@@ -34,19 +34,35 @@ $(document).ready( function() {
         playing = !playing;
         var animation = playing ? 'stop' : 'play';
         $('#animate_to_' + animation).get(0).beginElement();
-      });
+        $('#animate1_to_' + animation).get(0).beginElement();
+    });
 
     $(".sexytabs").tabs({ 
         show: { effect: "slide", direction: "left", duration: 200, easing: "easeOutBack" } ,
         hide: { effect: "slide", direction: "right", duration: 200, easing: "easeInQuad" } 
     });
     
+    $(".dcm-btn").click(function() {
+        toggleLeft('display-panel');
+        $(".body-back").css('display', 'none');
+        document.getElementById("frame-content").src = "http://www.decans.cn/stl-operation/";
+    });
+
+    $(".stl-btn").click( function() {
+        toggleLeft('display-panel');
+        $(".body-back").css('display', 'none');
+        document.getElementById("frame-content").src = "http://www.decans.cn:3000/2c04ea71666ff20027dd9845baa0e0d5";
+    })
     $(".display-btn").click( function() {
         toggleLeft('display-panel');
     });
 
     $(".control-btn").click( function() {
         toggleLeft('control-panel');
+    });
+
+    $(".record-btn").click( function() {
+        toggleLeft('record-panel');
     });
 
     $("a.toggle-nav").click( function() {
@@ -130,7 +146,7 @@ $(document).ready( function() {
     });
 
 
-    // $("#modal_projects").css("display",'block');
+    $("#modal_projects").css("display",'block');
 
     $(".cancel-project-btn").click( function() {
         location.href = 'https://www.decans.cn';
