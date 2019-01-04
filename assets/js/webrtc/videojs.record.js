@@ -3163,6 +3163,11 @@ function (_Plugin) {
   }, {
     key: "startVideoPreview",
     value: function startVideoPreview() {
+
+      if ( !this.mediaElement ) {
+        this.mediaElement = this.player.el().firstChild;
+      }
+        
       // disable playback events
       this.off('timeupdate');
       this.off('durationchange');

@@ -33,13 +33,27 @@
 	<script>
 		window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
 	</script>
-	<script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+	<script src="https://cdn.webrtc-experiment.com/commits.js"></script>
 
-	
-	
-	
 	<!-- <script src="./assets/js/webrtc/screen.js"> </script> -->
 
+	<!-- Include Video.js stylesheet (https://videojs.com/) -->
+	<link href="./assets/css/video-js.min.css" rel="stylesheet">
+
+	<!-- Style of VideoJS -->
+	<link href="./assets/css/videojs.record.css" rel="stylesheet">
+	<!-- Create the preview video element -->
+	<!-- <video id="myVideo" class="video-js vjs-default-skin"></video> -->
+			
+	<!-- Load video.js -->
+	<script src="./assets/js/webrtc/video.min.js"></script>
+
+	<!-- Load RecordRTC core and adapter -->
+	<script src="./assets/js/webrtc/RecordRTC.js"></script>
+	<script src="./assets/js/webrtc/adapter.js"></script>
+	
+	<!-- Load VideoJS Record Extension -->
+	<script src="./assets/js/webrtc/videojs.record.js"></script>
 
 </head>
 <body>

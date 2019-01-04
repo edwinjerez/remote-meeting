@@ -4,6 +4,8 @@ var playing = false;
 var meeting_id = 'sj3j8d8n2';
 var isClient = false;
 var connection;
+var videoMaxLengthInSeconds = 120;
+var player = null;
 
 function closeDialog() {
     project_table.page( 'first' ).draw('page');
@@ -82,6 +84,74 @@ $(document).ready( function() {
             connection.audiosContainer.appendChild(mediaElement);
         }
 
+        console.log('dddddddddddddddddddddddddddddddddddd', event.mediaElement.nodeName.toLowerCase(), event.mediaElement.id);
+        if ( !player && event.mediaElement.nodeName.toLowerCase() == 'video' ) {
+            var video_id = "video-" + event.mediaElement.id;
+            event.mediaElement.id = video_id;
+            console.log($("#" + video_id));
+            // Inialize the video player
+            player = videojs(event.mediaElement.id, {
+                controls: true,
+                width: 720,
+                height: 480,
+                fluid: false,
+                plugins: {
+                    record: {
+                        audio: true,
+                        video: true,
+                        maxLength: videoMaxLengthInSeconds,
+                        debug: true,
+                        videoMimeType: "video/webm;codecs=H264"
+                    }
+                }
+            }, function(){
+                console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', player);
+                // print version information at startup
+                videojs.log(
+                    'Using video.js', videojs.VERSION,
+                    'with videojs-record', videojs.getPluginVersion('record'),
+                    'and recordrtc', RecordRTC.version
+                );
+                // player.record().start();
+                setTimeout(function(){
+                    player.trigger('startRecord');
+                }, 3000);
+                setTimeout(function(){
+                    player.trigger('finishRecord');
+                }, 6000);
+            });
+            // error handling for getUserMedia
+            player.on('deviceError', function() {
+                console.log('device error:', player.deviceErrorCode);
+            });
+
+            // Handle error events of the video player
+            player.on('error', function(error) {
+                console.log('error:', error);
+            });
+
+            player.on('deviceready', function() {
+                console.log('device ready');
+            })
+            // user clicked the record button and started recording !
+            player.on('startRecord', function() {
+                console.log('started recording! Do whatever you need to');
+            });
+
+            // user completed recording and stream is available
+            // Upload the Blob to your server or download it locally !
+            player.on('finishRecord', function() {
+
+                // the blob object contains the recorded data that
+                // can be downloaded by the user, stored on server etc.
+                console.log(player);
+                player.record().saveAs({'video': player.recordedData.name});
+                // var videoBlob = player.recordedData.video;
+                // console.log(player.recordedData);
+                // console.log('finished recording: ', videoBlob);
+            });
+            
+        }
         setTimeout(function() {
             mediaElement.media.play();
         }, 5000);
@@ -112,6 +182,7 @@ $(document).ready( function() {
         getScreenConstraints(function(error, screen_constraints) {
             if (!error) {
                 screen_constraints = connection.modifyScreenConstraints(screen_constraints);
+                console.log(screen_constraints);
                 callback(error, screen_constraints);
                 return;
             }
