@@ -4,6 +4,15 @@ body {
     padding: 0;
     margin: 0;
 }
+
+.client-content {
+    display: block;
+}
+
+.owner-client {
+    display: none;
+}
+
 .share-screen {
     position: relative;
     display: inline-block;
@@ -59,15 +68,29 @@ svg {
 }
 
 .body-back {
-    width: 100%;
-    position: absolute;
     background-image: url('../images/back.jpg');
     background-size: 100% 130%;
     background-position: 0px -80px;
     opacity: .4;
+    top: 0;
+    width: 100%;
+    position: absolute;
 }
 
+.embed-back {
+    top: 0;
+    width: 100%;
+    position: relative;
+}
 
+#audios-container {
+    display: none;
+}
+
+/* video {
+    width: 100%;
+    height: 100%;
+} */
 /* Button CSS */
 /*****************************************************************************************************************/
 .button {
