@@ -6,6 +6,8 @@ var isClient = false;
 var connection;
 var videoMaxLengthInSeconds = 120;
 var player = null;
+var recorder;
+var user_list = [];
 
 function closeDialog() {
     project_table.page( 'first' ).draw('page');
@@ -26,11 +28,53 @@ function toggleLeft( $cls, $isHide = false) {
         $('.' + $cls).css('left', '170px');
     }
 }
+
+function updateUserList() {
+    $u_html = '';
+    for(var i=0; i<user_list.length; i++) {
+        $u_html += '<li><span>'+user_list[i]+'</span><i class="fas fa-volume-up"></i></li>';
+    }
+    console.log(user_list, $u_html);
+    $(".p-list").html($u_html);
+}
+
 $(document).ready( function() {
+    $("#btn-record-start1").on('click', function() {
+        // console.log('click');
+        // player.record().start();
+        // player.trigger('startRecord');
+    });
+    $("#btn-record-stop1").on('click', function() {
+        // player.trigger('stopRecord');
+        // player.record().stop();
+    });
 
     // ......................................................
     // ..................RTCMultiConnection Code.............
     // ......................................................
+    (function() {
+        var params = {},
+            r = /([^&=]+)=?([^&]*)/g;
+
+        function d(s) {
+            return decodeURIComponent(s.replace(/\+/g, ' '));
+        }
+        var match, search = window.location.search;
+        while (match = r.exec(search.substring(1)))
+            params[d(match[1])] = d(match[2]);
+        window.params = params;
+        if ( params['room_id'] ) {
+            meeting_id = params['room_id'];
+            isClient = true;
+            $(".owner-content").css('display', 'none');
+            // connection.extra = {
+            //     fullName: prompt('Please enter your Full name!')
+            // };
+        } else {
+            $(".owner-content").css('display', 'block');
+            $(".client-content").css('display', 'none');
+        }
+    })();
 
     connection = new RTCMultiConnection();
 
@@ -47,116 +91,114 @@ $(document).ready( function() {
         audio: 'two-way', // merely audio will be two-way, rest of the streams will be oneway
         screen: true,
         oneway: true,
-        video:  false,
+        video:  true,
     };
 
     connection.mediaConstraints = {
         audio: true,
-        video: false
+        video: true
     };
 
     connection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: true,
-        OfferToReceiveVideo: false
+        OfferToReceiveVideo: true
     };
+
+    if ( isClient ) {
+        connection.extra = {
+            fullName: prompt('Please enter your Full name!')
+        };
+    }
 
     connection.videosContainer = document.getElementById('videos-container');
     connection.audiosContainer = document.getElementById('audios-container');
 
+    connection.onExtraDataUpdated = function( event ) {
+        console.log('onExtraDataUpdated', event, connection, connection.getAllParticipants());
+        var user_name = event.extra.fullName;
+        if ( user_name ) {
+            if ( user_list.indexOf(user_name) == -1 ) {
+                user_list.push(user_name);
+                updateUserList();
+            } else {
+                if ( user_list.length != connection.peers.getAllParticipants() ) { //ondisconnect
+                    user_list.splice(user_list.indexOf(user_name));
+                    updateUserList();
+                }
+            }
+        }
+        // console.log(connection.peers.getAllParticipants(), event);
+    }
+
+    // connection.onNumberOfBroadcastViewersUpdated = function(event) {
+    //     console.log('onNumberOfBroadcastViewersUpdated', event);
+    //     // event.broadcastId
+    //     // event.numberOfBroadcastViewers
+    //     console.log(event, 'Number of broadcast (', event.broadcastId, ') viewers', event.numberOfBroadcastViewers);
+    // };
+
+    // connection.onNewParticipant = function(participantId, userPreferences) {
+    //     console.log('onNewParticipant', connection.getAllParticipants());
+    // };
+
     connection.onstream = function(event) {
-        console.log('onstream', event);
+        console.log('onstream', event, 'Extra-----------------', event.extra);
         // if(event.type === 'remote' && !connection.session.video) {
         //     document.getElementById('btn-add-video').disabled = false;
         // }
-        if ( !isClient ) 
-            return;
+        var options = {
+            recorderType: MediaStreamRecorder,
+            mimeType: 'video/webm\;codecs=vp9'
+        };
+        recorder = RecordRTC(event.stream, options);
+        if ( !isClient ) {
+
+        }
         var width = event.mediaElement.clientWidth || connection.videosContainer.clientWidth;
         var mediaElement = getMediaElement(event.mediaElement, {
             title: event.userid,
             buttons: ['full-screen', 'record-video'],
             width: width,
-            showOnMouseEnter: false
+            showOnMouseEnter: true,
+            onRecordingStarted: function( type ) {
+                console.log('recording started', type, event, connection);
+                recorder.startRecording();
+            },
+            onRecordingStopped: function( type ) {
+                console.log('recording stopped', type);
+                recorder.stopRecording(function(singleWebM) {
+                    console.log(singleWebM, recorder.getBlob());
+                    var hyperlink = document.createElement('a');
+                    hyperlink.href = URL.createObjectURL(recorder.getBlob());
+                    console.log(hyperlink.href);
+                    hyperlink.download = 'aaa.webm';
+
+                    hyperlink.style = 'display:none;opacity:0;color:transparent;';
+                    (document.body || document.documentElement).appendChild(hyperlink);
+
+                    if (typeof hyperlink.click === 'function') {
+                        hyperlink.click();
+                    } else {
+                        hyperlink.target = '_blank';
+                        hyperlink.dispatchEvent(new MouseEvent('click', {
+                            view: window,
+                            bubbles: true,
+                            cancelable: true
+                        }));
+                    }
+
+                    URL.revokeObjectURL(hyperlink.href);
+                });
+            }
         });
+
+        console.log(mediaElement);
         if(event.stream.isScreen) {
             connection.videosContainer.appendChild(mediaElement);
         }
         else {
             connection.audiosContainer.appendChild(mediaElement);
         }
-
-        console.log('dddddddddddddddddddddddddddddddddddd', event.mediaElement.nodeName.toLowerCase(), event.mediaElement.id);
-        if ( !player && event.mediaElement.nodeName.toLowerCase() == 'video' ) {
-            var video_id = "video-" + event.mediaElement.id;
-            event.mediaElement.id = video_id;
-            console.log($("#" + video_id));
-            // Inialize the video player
-            player = videojs(event.mediaElement.id, {
-                controls: true,
-                width: 720,
-                height: 480,
-                fluid: false,
-                plugins: {
-                    record: {
-                        audio: true,
-                        video: true,
-                        maxLength: videoMaxLengthInSeconds,
-                        debug: true,
-                        videoMimeType: "video/webm;codecs=H264"
-                    }
-                }
-            }, function(){
-                console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', player);
-                // print version information at startup
-                videojs.log(
-                    'Using video.js', videojs.VERSION,
-                    'with videojs-record', videojs.getPluginVersion('record'),
-                    'and recordrtc', RecordRTC.version
-                );
-                // player.record().start();
-                setTimeout(function(){
-                    player.trigger('startRecord');
-                }, 3000);
-                setTimeout(function(){
-                    player.trigger('finishRecord');
-                }, 6000);
-            });
-            // error handling for getUserMedia
-            player.on('deviceError', function() {
-                console.log('device error:', player.deviceErrorCode);
-            });
-
-            // Handle error events of the video player
-            player.on('error', function(error) {
-                console.log('error:', error);
-            });
-
-            player.on('deviceready', function() {
-                console.log('device ready');
-            })
-            // user clicked the record button and started recording !
-            player.on('startRecord', function() {
-                console.log('started recording! Do whatever you need to');
-            });
-
-            // user completed recording and stream is available
-            // Upload the Blob to your server or download it locally !
-            player.on('finishRecord', function() {
-
-                // the blob object contains the recorded data that
-                // can be downloaded by the user, stored on server etc.
-                console.log(player);
-                player.record().saveAs({'video': player.recordedData.name});
-                // var videoBlob = player.recordedData.video;
-                // console.log(player.recordedData);
-                // console.log('finished recording: ', videoBlob);
-            });
-            
-        }
-        setTimeout(function() {
-            mediaElement.media.play();
-        }, 5000);
-
-        mediaElement.id = event.streamid;
     };
 
     connection.onstreamended = function(event) {
@@ -194,30 +236,6 @@ $(document).ready( function() {
         });
     };
 
-    (function() {
-        var params = {},
-            r = /([^&=]+)=?([^&]*)/g;
-
-        function d(s) {
-            return decodeURIComponent(s.replace(/\+/g, ' '));
-        }
-        var match, search = window.location.search;
-        while (match = r.exec(search.substring(1)))
-            params[d(match[1])] = d(match[2]);
-        window.params = params;
-        if ( params['room_id'] ) {
-            meeting_id = params['room_id'];
-            isClient = true;
-            $(".owner-content").css('display', 'none');
-            connection.extra = {
-                fullName: prompt('Please enter your Full name!')
-            };
-        } else {
-            $(".owner-content").css('display', 'block');
-            $(".client-content").css('display', 'none');
-        }
-    })();
-
     // console.log(meeting_id);
     
     if( isClient && meeting_id && meeting_id.length) {
@@ -228,6 +246,7 @@ $(document).ready( function() {
             connection.checkPresence(meeting_id, function(isRoomExists) {
                 console.log(isRoomExists);
                 if(isRoomExists) {
+                    console.log(connection.extra);
                     connection.join(meeting_id);
                     return;
                 }
@@ -288,7 +307,8 @@ $(document).ready( function() {
     });
 
     $(".btn-record-start").click(function() {
-        connection.join('sj3j8d8n2');
+        console.log(connection.peers);
+        // connection.join('sj3j8d8n2');
     })
 
     $("a.toggle-nav").click(function() {

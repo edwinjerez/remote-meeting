@@ -15,6 +15,7 @@
 	<script src="./assets/js/webrtc/getScreenId.js"> </script>
 	<!-- custom layout for HTML5 audio/video elements -->
 	<script src="./assets/js/webrtc/getMediaElement.js"></script>
+	<link rel="stylesheet" href="https://cdn.WebRTC-Experiment.com/getMediaElement.css">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript" src="./assets/js/cdn/jquery-3.3.1.js"></script>
@@ -28,35 +29,18 @@
 	<script type="text/javascript" src="./assets/js/main.js"></script>
 	<script type="text/javascript" src="./assets/js/api.js"></script>
 	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
+	<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 	<!-- scripts used for screen-sharing -->
 	<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 	<script>
 		window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
 	</script>
-	<script src="https://cdn.webrtc-experiment.com/commits.js"></script>
-
-	<!-- <script src="./assets/js/webrtc/screen.js"> </script> -->
-
-	<!-- Include Video.js stylesheet (https://videojs.com/) -->
-	<link href="./assets/css/video-js.min.css" rel="stylesheet">
-
-	<!-- Style of VideoJS -->
-	<link href="./assets/css/videojs.record.css" rel="stylesheet">
-	<!-- Create the preview video element -->
-	<!-- <video id="myVideo" class="video-js vjs-default-skin"></video> -->
-			
-	<!-- Load video.js -->
-	<script src="./assets/js/webrtc/video.min.js"></script>
-
-	<!-- Load RecordRTC core and adapter -->
-	<script src="./assets/js/webrtc/RecordRTC.js"></script>
-	<script src="./assets/js/webrtc/adapter.js"></script>
-	
-	<!-- Load VideoJS Record Extension -->
-	<script src="./assets/js/webrtc/videojs.record.js"></script>
+	<!-- <script src="https://cdn.webrtc-experiment.com/commits.js"></script> -->
 
 </head>
 <body>
+<!-- <button id="btn-record-start1">Start</button>
+	<button id="btn-record-stop1">Stop</button> -->
 <div class="client-content">
 	<div class="embed-back media-content" id="videos-container"></div>
 	<div class="embed-back media-content" id="audios-container"></div>
@@ -172,12 +156,12 @@
 							calcMode="spline"
 							/>
 							
-							<animate 
-							id="animate1_to_play" 
-							begin="indefinite" 
-							fill="freeze" 
-							attributeName="points" 
-							dur="500ms" 
+							<animate
+							id="animate1_to_play"
+							begin="indefinite"
+							fill="freeze"
+							attributeName="points"
+							dur="500ms"
 							to="50,40 100,70 100,70 50,100, 50,40" 
 							keySplines="
 								0.1 0.8 0.2 1; 
@@ -204,9 +188,7 @@
 			</div>
 			<div id="parti-list">
 				<ul class='p-list'>
-					<li><span>漓江</span><i class="fas fa-volume-up"></i><button class='button'>Chairman</button></li>
-					<li><span>李丽</span><i class="fas fa-volume-up"></i><button class='button'>Chairman</button></li>
-					<li><span>往里</span><i class="fas fa-volume-up"></i><button class='button'>Chairman</button></li>
+					
 				</ul>
 			</div>
 		</div>
