@@ -91,17 +91,17 @@ $(document).ready( function() {
         audio: 'two-way', // merely audio will be two-way, rest of the streams will be oneway
         screen: true,
         oneway: true,
-        video:  true,
+        video:  false,
     };
 
-    connection.mediaConstraints = {
-        audio: true,
-        video: true
-    };
+    // connection.mediaConstraints = {
+    //     audio: true,
+    //     video: false
+    // };
 
     connection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: true,
-        OfferToReceiveVideo: true
+        OfferToReceiveVideo: false
     };
 
     if ( isClient ) {
@@ -157,7 +157,7 @@ $(document).ready( function() {
         var width = event.mediaElement.clientWidth || connection.videosContainer.clientWidth;
         var mediaElement = getMediaElement(event.mediaElement, {
             title: event.userid,
-            buttons: ['full-screen', 'record-video'],
+            buttons: ['full-screen', 'record-video', 'mute-audio', 'mute-video'],
             width: width,
             showOnMouseEnter: true,
             onRecordingStarted: function( type ) {
@@ -244,9 +244,7 @@ $(document).ready( function() {
         // auto-join-room
         (function reCheckRoomPresence() {
             connection.checkPresence(meeting_id, function(isRoomExists) {
-                console.log(isRoomExists);
                 if(isRoomExists) {
-                    console.log(connection.extra);
                     connection.join(meeting_id);
                     return;
                 }
