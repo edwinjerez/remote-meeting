@@ -8,6 +8,7 @@ var videoMaxLengthInSeconds = 120;
 var player = null;
 var recorder;
 var user_list = [];
+var socket;
 
 function closeDialog() {
     project_table.page( 'first' ).draw('page');
@@ -32,8 +33,8 @@ function toggleLeft( $cls, $isHide = false) {
 function updateUserList() {
     $u_html = '';
     for(var i=0; i<user_list.length; i++) {
-        $u_html += '<li><span>'+user_list[i]+'</span><i class="fas fa-volume-up"></i></li>';
-    }
+        $u_html += '<li><span>'+user_list[i].name+'</span><i class="fas fa-volume-up"></i></li>';
+     }
     console.log(user_list, $u_html);
     $(".p-list").html($u_html);
 }
@@ -67,9 +68,6 @@ $(document).ready( function() {
             meeting_id = params['room_id'];
             isClient = true;
             $(".owner-content").css('display', 'none');
-            // connection.extra = {
-            //     fullName: prompt('Please enter your Full name!')
-            // };
         } else {
             $(".owner-content").css('display', 'block');
             $(".client-content").css('display', 'none');
@@ -81,23 +79,26 @@ $(document).ready( function() {
     // by default, socket.io server is assumed to be deployed on your own URL
     // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com/';
+    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
     // comment-out below line if you do not have your own socket.io server
     // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
     connection.socketMessageEvent = 'audio-plus-screen-sharing-demo';
 
+    socket = connection.getSocket();
+
     connection.session = {
         audio: 'two-way', // merely audio will be two-way, rest of the streams will be oneway
+        // audio: true,
+        video: false,
         screen: true,
         oneway: true,
-        video:  false,
     };
 
-    // connection.mediaConstraints = {
-    //     audio: true,
-    //     video: false
-    // };
+    connection.mediaConstraints = {
+        audio: true,
+        video: false
+    };
 
     connection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: true,
@@ -114,19 +115,8 @@ $(document).ready( function() {
     connection.audiosContainer = document.getElementById('audios-container');
 
     connection.onExtraDataUpdated = function( event ) {
-        console.log('onExtraDataUpdated', event, connection, connection.getAllParticipants());
-        var user_name = event.extra.fullName;
-        if ( user_name ) {
-            if ( user_list.indexOf(user_name) == -1 ) {
-                user_list.push(user_name);
-                updateUserList();
-            } else {
-                if ( user_list.length != connection.peers.getAllParticipants() ) { //ondisconnect
-                    user_list.splice(user_list.indexOf(user_name));
-                    updateUserList();
-                }
-            }
-        }
+        // console.log('onExtraDataUpdated', event, connection, connection.getAllParticipants());
+        
         // console.log(connection.peers.getAllParticipants(), event);
     }
 
@@ -141,53 +131,89 @@ $(document).ready( function() {
     //     console.log('onNewParticipant', connection.getAllParticipants());
     // };
 
+    connection.onmessage = function(event) {
+        var message = event.data;
+        console.log('onMessage', event);
+        // if(message.shareYourCameraWithMe) {
+        //     connection.dontAttachStream = false;
+        //     connection.renegotiate(event.userid); // share only with single user
+        // }
+    
+        // if(message.shareYourCameraWithAllUsers) {
+        //     connection.dontAttachStream = false;
+        //     connection.renegotiate(); // share with all users
+        // }
+    }
+    connection.onUserStatusChanged = function(event) {
+        if ( event.status == 'offline' ) {
+            for (var i=0; i<user_list.length; i++ ) {
+                if ( user_list[i].id == event.user_id ) {
+                    user_list.splice(i, 1);
+                    updateUserList();
+                    return;
+                }
+            }
+        }
+        console.log('onUserStatusChanged', user_list);
+    };
     connection.onstream = function(event) {
+        
+
         console.log('onstream', event, 'Extra-----------------', event.extra);
         // if(event.type === 'remote' && !connection.session.video) {
         //     document.getElementById('btn-add-video').disabled = false;
         // }
         var options = {
+            type: 'video',
             recorderType: MediaStreamRecorder,
-            mimeType: 'video/webm\;codecs=vp9'
+            mimeType: 'video/webm'
         };
-        recorder = RecordRTC(event.stream, options);
+        if (event.mediaElement.nodeName.toLowerCase() == 'video') {
+            recorder = RecordRTC(event.stream, options);
+            console.log('RECORDER', recorder);
+        }
         if ( !isClient ) {
-
+            // event.mediaElement.muted = true;
         }
         var width = event.mediaElement.clientWidth || connection.videosContainer.clientWidth;
         var mediaElement = getMediaElement(event.mediaElement, {
             title: event.userid,
             buttons: ['full-screen', 'record-video', 'mute-audio', 'mute-video'],
             width: width,
-            showOnMouseEnter: true,
+            showOnMouseEnter: false,
             onRecordingStarted: function( type ) {
-                console.log('recording started', type, event, connection);
-                recorder.startRecording();
+                console.log('recording started', event, connection);
+                console.log('type', type);
+                recorder.startRecording({
+                    audio: true,
+                    video: true,
+                });
             },
             onRecordingStopped: function( type ) {
-                console.log('recording stopped', type);
+                console.log('recording stopped', type, recorder);
                 recorder.stopRecording(function(singleWebM) {
-                    console.log(singleWebM, recorder.getBlob());
-                    var hyperlink = document.createElement('a');
-                    hyperlink.href = URL.createObjectURL(recorder.getBlob());
-                    console.log(hyperlink.href);
-                    hyperlink.download = 'aaa.webm';
+                    recorder.save('1.webm');
+                    // console.log(singleWebM, recorder.getBlob());
+                    // var hyperlink = document.createElement('a');
+                    // hyperlink.href = URL.createObjectURL(recorder.getBlob());
+                    // console.log(hyperlink.href);
+                    // hyperlink.download = 'aaa.webm';
 
-                    hyperlink.style = 'display:none;opacity:0;color:transparent;';
-                    (document.body || document.documentElement).appendChild(hyperlink);
+                    // hyperlink.style = 'display:none;opacity:0;color:transparent;';
+                    // (document.body || document.documentElement).appendChild(hyperlink);
 
-                    if (typeof hyperlink.click === 'function') {
-                        hyperlink.click();
-                    } else {
-                        hyperlink.target = '_blank';
-                        hyperlink.dispatchEvent(new MouseEvent('click', {
-                            view: window,
-                            bubbles: true,
-                            cancelable: true
-                        }));
-                    }
+                    // if (typeof hyperlink.click === 'function') {
+                    //     hyperlink.click();
+                    // } else {
+                    //     hyperlink.target = '_blank';
+                    //     hyperlink.dispatchEvent(new MouseEvent('click', {
+                    //         view: window,
+                    //         bubbles: true,
+                    //         cancelable: true
+                    //     }));
+                    // }
 
-                    URL.revokeObjectURL(hyperlink.href);
+                    // URL.revokeObjectURL(hyperlink.href);
                 });
             }
         });
@@ -199,14 +225,22 @@ $(document).ready( function() {
         else {
             connection.audiosContainer.appendChild(mediaElement);
         }
+
+        setTimeout(function() {
+            mediaElement.media.play();
+        }, 5000);
+
+        mediaElement.id = event.streamid;
+
     };
 
     connection.onstreamended = function(event) {
         console.log('onStreamEnded', event);
-        var mediaElement = document.getElementById(event.streamid);
-        if(mediaElement) {
-            mediaElement.parentNode.removeChild(mediaElement);
-        }
+        // alert('StreamEnd');
+        // var mediaElement = document.getElementById(event.streamid);
+        // if(mediaElement) {
+        //     mediaElement.parentNode.removeChild(mediaElement);
+        // }
     };
 
     // document.getElementById('btn-add-video').onclick = function() {
@@ -221,10 +255,12 @@ $(document).ready( function() {
     // Using getScreenId.js to capture screen from any domain
     // You do NOT need to deploy Chrome Extension YOUR-Self!!
     connection.getScreenConstraints = function(callback) {
+        console.log('getScreenConstrants');
         getScreenConstraints(function(error, screen_constraints) {
+            console.log(error, screen_constraints);
             if (!error) {
                 screen_constraints = connection.modifyScreenConstraints(screen_constraints);
-                console.log(screen_constraints);
+                console.log(error, screen_constraints);
                 callback(error, screen_constraints);
                 return;
             }
@@ -237,14 +273,31 @@ $(document).ready( function() {
     };
 
     // console.log(meeting_id);
-    
+
+    // on user add
+    socket.on(connection.socketCustomEvent, function(message) {
+        var user_name = message.name;
+        var user_id = message.user_id;
+        var status = message.status;
+        console.log(message, user_name);
+        
+        if ( user_name ) {
+            if ( status == 'online' ) {
+                user_list.push({ 'id': user_id, 'name': user_name });
+                updateUserList();
+            }
+        }
+    });
+
+
     if( isClient && meeting_id && meeting_id.length) {
         localStorage.setItem(connection.socketMessageEvent, meeting_id);
 
         // auto-join-room
         (function reCheckRoomPresence() {
             connection.checkPresence(meeting_id, function(isRoomExists) {
-                if(isRoomExists) {
+                if(isRoomExists) {                   
+                    socket.emit(connection.socketCustomEvent, { name: connection.extra.fullName, userid: connection.userid, status: 'online'});
                     connection.join(meeting_id);
                     return;
                 }
@@ -270,7 +323,8 @@ $(document).ready( function() {
         $('#animate_to_' + animation).get(0).beginElement();
         $('#animate1_to_' + animation).get(0).beginElement();
         console.log(meeting_id);
-        connection.open(meeting_id, function() {
+        connection.open(meeting_id, function(isRoomCreated, roomid, error) {
+            console.log('opened', isRoomCreated, roomid, error);
             // console.log('ssssssss');
             //showRoomURL(connection.sessionid);
         });

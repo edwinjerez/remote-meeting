@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="./assets/css/ui-modal.css">
 
 	<script src="./assets/js/webrtc/RTCMultiConnection.min.js"> </script>
+	<script src="./assets/js/webrtc/adapter.js"> </script>
 	<script src="./assets/js/webrtc/socket.io.js"> </script>
 	<script src="./assets/js/webrtc/getScreenId.js"> </script>
 	<!-- custom layout for HTML5 audio/video elements -->
@@ -27,7 +28,6 @@
     <script src="./assets/js/cdn/sweetalert2.min.js"></script>
 	<script type="text/javascript" src="./assets/js/global.js"></script>
 	<script type="text/javascript" src="./assets/js/main.js"></script>
-	<script type="text/javascript" src="./assets/js/api.js"></script>
 	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
 	<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 	<!-- scripts used for screen-sharing -->
