@@ -3,12 +3,15 @@ var selected_project_id = null;
 var playing = false;
 var meeting_id = 'sj3j8d8n2';
 var isClient = false;
-var connection;
+var screenConnection;
+var audioConnection;
+
 var videoMaxLengthInSeconds = 120;
 var player = null;
 var recorder;
 var user_list = [];
 var socket;
+var audio_streams = [];
 
 function closeDialog() {
     project_table.page( 'first' ).draw('page');
@@ -35,7 +38,6 @@ function updateUserList() {
     for(var i=0; i<user_list.length; i++) {
         $u_html += '<li><span>'+user_list[i].name+'</span><i class="fas fa-volume-up"></i></li>';
      }
-    console.log(user_list, $u_html);
     $(".p-list").html($u_html);
 }
 
@@ -74,156 +76,116 @@ $(document).ready( function() {
         }
     })();
 
-    connection = new RTCMultiConnection();
-
+    screenConnection = new RTCMultiConnection();
+    audioConnection = new RTCMultiConnection();
+    
     // by default, socket.io server is assumed to be deployed on your own URL
     // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+    screenConnection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+    audioConnection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
     // comment-out below line if you do not have your own socket.io server
     // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-    connection.socketMessageEvent = 'audio-plus-screen-sharing-demo';
+    screenConnection.socketMessageEvent = audioConnection.socketMessageEvent = 'audio-plus-screen-sharing-demo';
 
-    socket = connection.getSocket();
+    socket = screenConnection.getSocket();
 
-    connection.session = {
-        audio: 'two-way', // merely audio will be two-way, rest of the streams will be oneway
-        // audio: true,
-        video: false,
+    screenConnection.session = {
         screen: true,
         oneway: true,
     };
 
-    connection.mediaConstraints = {
+    audioConnection.session = {
         audio: true,
         video: false
     };
 
-    connection.sdpConstraints.mandatory = {
+    screenConnection.sdpConstraints.mandatory = {
+        OfferToReceiveAudio: false,
+        OfferToReceiveVideo: false
+    };
+
+    audioConnection.mediaConstraints = {
+        audio: true,
+        video: false
+    };
+    
+    audioConnection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: true,
         OfferToReceiveVideo: false
     };
 
     if ( isClient ) {
-        connection.extra = {
+        screenConnection.extra = {
             fullName: prompt('Please enter your Full name!')
         };
     }
 
-    connection.videosContainer = document.getElementById('videos-container');
-    connection.audiosContainer = document.getElementById('audios-container');
+    screenConnection.videosContainer = document.getElementById('videos-container');
+    audioConnection.audiosContainer = document.getElementById('audios-container');
 
-    connection.onExtraDataUpdated = function( event ) {
-        // console.log('onExtraDataUpdated', event, connection, connection.getAllParticipants());
-        
-        // console.log(connection.peers.getAllParticipants(), event);
-    }
-
-    // connection.onNumberOfBroadcastViewersUpdated = function(event) {
-    //     console.log('onNumberOfBroadcastViewersUpdated', event);
-    //     // event.broadcastId
-    //     // event.numberOfBroadcastViewers
-    //     console.log(event, 'Number of broadcast (', event.broadcastId, ') viewers', event.numberOfBroadcastViewers);
-    // };
-
-    // connection.onNewParticipant = function(participantId, userPreferences) {
-    //     console.log('onNewParticipant', connection.getAllParticipants());
-    // };
-
-    connection.onmessage = function(event) {
-        var message = event.data;
-        console.log('onMessage', event);
-        // if(message.shareYourCameraWithMe) {
-        //     connection.dontAttachStream = false;
-        //     connection.renegotiate(event.userid); // share only with single user
-        // }
-    
-        // if(message.shareYourCameraWithAllUsers) {
-        //     connection.dontAttachStream = false;
-        //     connection.renegotiate(); // share with all users
-        // }
-    }
-    connection.onUserStatusChanged = function(event) {
+    screenConnection.onUserStatusChanged = function(event) {
+        console.log('onUserStatusChanged', event);
         if ( event.status == 'offline' ) {
             for (var i=0; i<user_list.length; i++ ) {
-                if ( user_list[i].id == event.user_id ) {
+                if ( user_list[i].id == event.userid ) {
+                    // console.log('slice', i);
                     user_list.splice(i, 1);
                     updateUserList();
                     return;
                 }
             }
         }
-        console.log('onUserStatusChanged', user_list);
+        // console.log('onUserStatusChanged', user_list);
     };
-    connection.onstream = function(event) {
-        
 
+    audioConnection.onstream = function (event) {
+        console.log('onAudiostream', event);
+        audio_streams.push(event.stream);
+    };
+
+    screenConnection.onstream = function(event) {
         console.log('onstream', event, 'Extra-----------------', event.extra);
-        // if(event.type === 'remote' && !connection.session.video) {
-        //     document.getElementById('btn-add-video').disabled = false;
-        // }
+
         var options = {
             type: 'video',
-            recorderType: MediaStreamRecorder,
-            mimeType: 'video/webm'
+            // recorderType: MediaStreamRecorder,
+            // mimeType: 'video/webm'
         };
-        if (event.mediaElement.nodeName.toLowerCase() == 'video') {
-            recorder = RecordRTC(event.stream, options);
-            console.log('RECORDER', recorder);
-        }
+        
+        recorder = RecordRTC([event.stream], options);
+
         if ( !isClient ) {
             // event.mediaElement.muted = true;
         }
-        var width = event.mediaElement.clientWidth || connection.videosContainer.clientWidth;
+        var width = event.mediaElement.clientWidth || screenConnection.videosContainer.clientWidth;
         var mediaElement = getMediaElement(event.mediaElement, {
             title: event.userid,
             buttons: ['full-screen', 'record-video', 'mute-audio', 'mute-video'],
             width: width,
             showOnMouseEnter: false,
             onRecordingStarted: function( type ) {
-                console.log('recording started', event, connection);
-                console.log('type', type);
-                recorder.startRecording({
-                    audio: true,
-                    video: true,
-                });
+                console.log('recording started', event, screenConnection);
+                recorder.startRecording();
+                var i_recorder = recorder.getInternalRecorder();
+                i_recorder.addStreams(audio_streams);
+                
             },
             onRecordingStopped: function( type ) {
                 console.log('recording stopped', type, recorder);
                 recorder.stopRecording(function(singleWebM) {
                     recorder.save('1.webm');
-                    // console.log(singleWebM, recorder.getBlob());
-                    // var hyperlink = document.createElement('a');
-                    // hyperlink.href = URL.createObjectURL(recorder.getBlob());
-                    // console.log(hyperlink.href);
-                    // hyperlink.download = 'aaa.webm';
-
-                    // hyperlink.style = 'display:none;opacity:0;color:transparent;';
-                    // (document.body || document.documentElement).appendChild(hyperlink);
-
-                    // if (typeof hyperlink.click === 'function') {
-                    //     hyperlink.click();
-                    // } else {
-                    //     hyperlink.target = '_blank';
-                    //     hyperlink.dispatchEvent(new MouseEvent('click', {
-                    //         view: window,
-                    //         bubbles: true,
-                    //         cancelable: true
-                    //     }));
-                    // }
-
-                    // URL.revokeObjectURL(hyperlink.href);
                 });
             }
         });
 
         console.log(mediaElement);
         if(event.stream.isScreen) {
-            connection.videosContainer.appendChild(mediaElement);
+            screenConnection.videosContainer.appendChild(mediaElement);
         }
         else {
-            connection.audiosContainer.appendChild(mediaElement);
+            screenConnection.audiosContainer.appendChild(mediaElement);
         }
 
         setTimeout(function() {
@@ -234,33 +196,16 @@ $(document).ready( function() {
 
     };
 
-    connection.onstreamended = function(event) {
-        console.log('onStreamEnded', event);
-        // alert('StreamEnd');
-        // var mediaElement = document.getElementById(event.streamid);
-        // if(mediaElement) {
-        //     mediaElement.parentNode.removeChild(mediaElement);
-        // }
+    screenConnection.onstreamended = function(event) {
+        console.log('onScreenStreamEnded', event);
     };
-
-    // document.getElementById('btn-add-video').onclick = function() {
-    //     this.disabled = true;
-    //     connection.session.video = true;
-    //     connection.addStream({
-    //         video: true,
-    //         oneway: true
-    //     });
-    // };
 
     // Using getScreenId.js to capture screen from any domain
     // You do NOT need to deploy Chrome Extension YOUR-Self!!
-    connection.getScreenConstraints = function(callback) {
-        console.log('getScreenConstrants');
+    screenConnection.getScreenConstraints = function(callback) {
         getScreenConstraints(function(error, screen_constraints) {
-            console.log(error, screen_constraints);
             if (!error) {
-                screen_constraints = connection.modifyScreenConstraints(screen_constraints);
-                console.log(error, screen_constraints);
+                screen_constraints = screenConnection.modifyScreenConstraints(screen_constraints);
                 callback(error, screen_constraints);
                 return;
             }
@@ -275,11 +220,11 @@ $(document).ready( function() {
     // console.log(meeting_id);
 
     // on user add
-    socket.on(connection.socketCustomEvent, function(message) {
+    socket.on(screenConnection.socketCustomEvent, function(message) {
         var user_name = message.name;
-        var user_id = message.user_id;
+        var user_id = message.userid;
         var status = message.status;
-        console.log(message, user_name);
+        // console.log(message, user_name);
         
         if ( user_name ) {
             if ( status == 'online' ) {
@@ -291,14 +236,15 @@ $(document).ready( function() {
 
 
     if( isClient && meeting_id && meeting_id.length) {
-        localStorage.setItem(connection.socketMessageEvent, meeting_id);
+        localStorage.setItem(screenConnection.socketMessageEvent, meeting_id);
 
         // auto-join-room
         (function reCheckRoomPresence() {
-            connection.checkPresence(meeting_id, function(isRoomExists) {
+            screenConnection.checkPresence(meeting_id, function(isRoomExists) {
                 if(isRoomExists) {                   
-                    socket.emit(connection.socketCustomEvent, { name: connection.extra.fullName, userid: connection.userid, status: 'online'});
-                    connection.join(meeting_id);
+                    socket.emit(screenConnection.socketCustomEvent, { name: screenConnection.extra.fullName, userid: screenConnection.userid, status: 'online'});
+                    screenConnection.join(meeting_id);
+                    audioConnection.join(meeting_id + 'audio');
                     return;
                 }
                 setTimeout(reCheckRoomPresence, 5000);
@@ -323,15 +269,18 @@ $(document).ready( function() {
         $('#animate_to_' + animation).get(0).beginElement();
         $('#animate1_to_' + animation).get(0).beginElement();
         console.log(meeting_id);
-        connection.open(meeting_id, function(isRoomCreated, roomid, error) {
+        screenConnection.open(meeting_id, function(isRoomCreated, roomid, error) {
             console.log('opened', isRoomCreated, roomid, error);
             // console.log('ssssssss');
             //showRoomURL(connection.sessionid);
         });
+        audioConnection.open(meeting_id + 'audio', function(isRoomCreated, roomid, error) {
+            console.log('audio_opened', isRoomCreated, roomid, error);
+        });
     });
 
     $(".sexytabs").tabs({ 
-        show: { effect: "slide", direction: "left", duration: 200, easing: "easeOutBack" } ,
+        show: { effect: "slide", direction: "left", duration: 200, easing: "easeOutBack" },
         hide: { effect: "slide", direction: "right", duration: 200, easing: "easeInQuad" } 
     });
     
@@ -359,7 +308,7 @@ $(document).ready( function() {
     });
 
     $(".btn-record-start").click(function() {
-        console.log(connection.peers);
+        console.log(screenConnection.peers);
         // connection.join('sj3j8d8n2');
     })
 
