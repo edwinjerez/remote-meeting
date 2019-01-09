@@ -1,7 +1,8 @@
 var project_table;
 var selected_project_id = null;
 var playing = false;
-var meeting_id = 'sj3j8d8n2';
+var meeting_id = '';
+var user_id = 1;
 var isClient = false;
 var screenConnection;
 var audioConnection;
@@ -12,6 +13,7 @@ var recorder;
 var user_list = [];
 var socket;
 var audio_streams = [];
+var projects_array = [];
 
 function closeDialog() {
     project_table.page( 'first' ).draw('page');
@@ -287,13 +289,13 @@ $(document).ready( function() {
     $(".dcm-btn").click(function() {
         toggleLeft('display-panel');
         $(".body-back").css('display', 'none');
-        document.getElementById("frame-content").src = "http://www.decans.cn:3000/2c04ea71666ff20027dd9845baa0e0d5";
+        document.getElementById("frame-content").src = "https://www.decans.cn:3000/2c04ea71666ff20027dd9845baa0e0d5";
     });
     
     $(".stl-btn").click(function() {
         toggleLeft('display-panel');
         $(".body-back").css('display', 'none');
-        document.getElementById("frame-content").src = "http://50.18.217.145/stl-operation/";
+        document.getElementById("frame-content").src = "https://www.decans.cn/stl-operation/";
     })
     $(".display-btn").click(function() {
         toggleLeft('display-panel');
@@ -344,35 +346,38 @@ $(document).ready( function() {
         "ordering": false,
         // "info":     false,
         "pageLength": 5,
-        // "ajax": {
-        //   "url": "./lib/loader.php",
-        //   "type": "post",
-        //   "data": {
-        //     type: 'projects'
-        //   },
-        //   "dataSrc": function(res) {
-        //     var return_data = new Array();
-        //     for(var i=0; i<res.length; i++) {
-        //       projects_array.push({
-        //         "id": res[i].id,
-        //         "project_name": res[i].project_name,
-        //         "dicom_id": res[i].dicom_id,
-        //         "path": res[i].path,
-        //         "create_time": res[i].create_time
-        //       });
-        //       return_data.push({
-        //         "no": (i+1),
-        //         "project_name": res[i].project_name,
-        //         "create_time": res[i].create_time
-        //       });
-        //     }
-        //     return return_data;
-        //   }
-        // },
+        "ajax": {
+          "url": "./lib/ajax.php",
+          "type": "post",
+          "data": {
+            type: 'projects',
+            user_id: user_id
+          },
+          "dataSrc": function(res) {
+            var return_data = new Array();
+            for(var i=0; i<res.length; i++) {
+              projects_array.push({
+                "id": res[i].remote_id,
+                "project_name": res[i].name,
+                "meeting_id": res[i].meeting_id,
+                "username": res[i].username,
+                "user_id": res[i].user_id
+              });
+              return_data.push({
+                "no": (i+1),
+                "owner_name": res[i].username,
+                "meeting_id": res[i].meeting_id,
+                "project_name": res[i].name
+              });
+            }
+            return return_data;
+          }
+        },
         "columns": [
-          { 'data': 'no'},
-          { 'data': 'project_name'},
-          { 'data': 'create_time'},
+          { 'data': 'no' },
+          { 'data': 'owner_name' },
+          { 'data': 'meeting_id' },
+          { 'data': 'project_name' },
           ],
         "bFilter":true,
         // "rowClickHandler": onParentTable
@@ -386,8 +391,10 @@ $(document).ready( function() {
     });
 
     $('#project-table tbody').on( 'click', 'tr', function (event) {
-        var index = $(this)[0].sectionRowIndex;
-        selected_project_id = 5 * project_table.page.info().page + index;
+        selected_project_id = $(this).children('td:eq(2)').text();
+        meeting_id = selected_project_id;
+        // var index = $(this)[0].sectionRowIndex;
+        // selected_project_id = 5 * project_table.page.info().page + index;
         $("#project-table tr").removeClass("selected");
         $(this).toggleClass('selected');
     });

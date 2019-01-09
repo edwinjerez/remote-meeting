@@ -232,21 +232,10 @@
 						<tr>
 							<th>No</th>
 							<th>Owner</th>
+							<th>Meeting Id</th>
 							<th>Name</th>
 						</tr>
 						</thead>
-						<tbody>
-							<tr>
-								<td>1</td>
-								<td>Admin</td>
-								<td>Right side_femoral fracture_45Y_F</td>
-							</tr>
-							<tr>
-								<td>2</td>
-								<td>Admin</td>
-								<td>Artificial kneearthroplasty</td>
-							</tr>
-						</tbody>
 					</table>
 					</div>
 					<div style="padding-top:10px; display: inline-flex;">        
