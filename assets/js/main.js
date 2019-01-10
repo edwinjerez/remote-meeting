@@ -38,9 +38,20 @@ function toggleLeft( $cls, $isHide = false) {
 function updateUserList() {
     $u_html = '';
     for(var i=0; i<user_list.length; i++) {
-        $u_html += '<li><span>'+user_list[i].name+'</span><i class="fas fa-volume-up"></i></li>';
+        $u_html += '<li><span>'+user_list[i].name+'</span><a class="user-mute" data-user-index="'+i+'" data-user-id="'+user_list[i].id+'"><i class="fas fa-volume-up"></i></a></li>';
      }
     $(".p-list").html($u_html);
+
+    $(".user-mute").click(function() {
+        $u_index = $(this).data('user-index');
+        if ( user_list[$u_index].isMuted ) {
+            $(this).html('<i class="fas fa-volume-up"></i>');
+        } else {
+            $(this).html('<i class="fas fa-volume-mute"></i>');
+        }
+        user_list[$u_index].isMuted = !user_list[$u_index].isMuted;
+
+    });
 }
 
 $(document).ready( function() {
@@ -145,6 +156,32 @@ $(document).ready( function() {
     audioConnection.onstream = function (event) {
         console.log('onAudiostream', event);
         audio_streams.push(event.stream);
+        var width = event.mediaElement.clientWidth || audioConnection.audiosContainer.clientWidth;
+
+        // if ( !isClient && event.type == 'remote' ) {
+        //     event.stream.mute();
+        // }
+
+        var mediaElement = getMediaElement(event.mediaElement, {
+            title: event.userid,
+            buttons: ['full-screen', 'mute-audio', 'mute-video'],
+            width: width,
+            showOnMouseEnter: false,
+            // onRecordingStarted: function( type ) {
+            //     console.log('recording started', event, screenConnection);
+            //     recorder.startRecording();
+            //     var i_recorder = recorder.getInternalRecorder();
+            //     i_recorder.addStreams(audio_streams);
+                
+            // },
+            // onRecordingStopped: function( type ) {
+            //     console.log('recording stopped', type, recorder);
+            //     recorder.stopRecording(function(singleWebM) {
+            //         recorder.save('1.webm');
+            //     });
+            // }
+        });
+        audioConnection.audiosContainer.appendChild(mediaElement);
     };
 
     screenConnection.onstream = function(event) {
@@ -177,18 +214,18 @@ $(document).ready( function() {
             onRecordingStopped: function( type ) {
                 console.log('recording stopped', type, recorder);
                 recorder.stopRecording(function(singleWebM) {
-                    recorder.save('1.webm');
+                    recorder.save();
                 });
             }
         });
 
         console.log(mediaElement);
-        if(event.stream.isScreen) {
+        // if(event.stream.isScreen) {
             screenConnection.videosContainer.appendChild(mediaElement);
-        }
-        else {
-            screenConnection.audiosContainer.appendChild(mediaElement);
-        }
+        // }
+        // else {
+
+        // }
 
         setTimeout(function() {
             mediaElement.media.play();
@@ -230,7 +267,7 @@ $(document).ready( function() {
         
         if ( user_name ) {
             if ( status == 'online' ) {
-                user_list.push({ 'id': user_id, 'name': user_name });
+                user_list.push({ 'id': user_id, 'name': user_name, 'isMuted': false });
                 updateUserList();
             }
         }
@@ -311,6 +348,7 @@ $(document).ready( function() {
 
     $(".btn-record-start").click(function() {
         console.log(screenConnection.peers);
+        // audio_streams
         // connection.join('sj3j8d8n2');
     })
 

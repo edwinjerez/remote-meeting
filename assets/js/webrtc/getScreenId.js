@@ -26,6 +26,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
 (function() {
     window.getScreenId = function(callback, custom_parameter) {
+        console.log('getScreenId');
         custom_parameter = ['tab'];
         if(navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob)) {
             // microsoft edge => navigator.getDisplayMedia(screen_constraints).then(onSuccess, onFailure);
