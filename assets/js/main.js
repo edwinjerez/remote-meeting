@@ -12,9 +12,13 @@ var player = null;
 var recorder;
 var user_list = [];
 var socket;
-var audio_streams = [];
+var media_streams = [];
 var projects_array = [];
+var isSpeakerOn = true;
 
+window.enableAdapter = true; // enable adapter.js
+
+console.log(DetectRTC);
 function closeDialog() {
     project_table.page( 'first' ).draw('page');
     $("#project-table tr").removeClass("selected");
@@ -44,14 +48,24 @@ function updateUserList() {
 
     $(".user-mute").click(function() {
         $u_index = $(this).data('user-index');
+        $audio_index = getStreamIndexByStreamId(user_list[$u_index].stream_id);
         if ( user_list[$u_index].isMuted ) {
             $(this).html('<i class="fas fa-volume-up"></i>');
         } else {
             $(this).html('<i class="fas fa-volume-mute"></i>');
         }
+        media_streams[$audio_index].getAudioTracks()[0].enabled = !media_streams[$audio_index].getAudioTracks()[0].enabled;
         user_list[$u_index].isMuted = !user_list[$u_index].isMuted;
 
     });
+}
+
+function getStreamIndexByStreamId( stream_id ) {
+    for ( var i=0; i<media_streams.length; i++ ) {
+        if ( media_streams[i].streamid == stream_id ) {
+            return i;
+        }
+    }
 }
 
 $(document).ready( function() {
@@ -130,7 +144,7 @@ $(document).ready( function() {
     };
 
     if ( isClient ) {
-        screenConnection.extra = {
+        audioConnection.extra = {
             fullName: prompt('Please enter your Full name!')
         };
     }
@@ -138,12 +152,15 @@ $(document).ready( function() {
     screenConnection.videosContainer = document.getElementById('videos-container');
     audioConnection.audiosContainer = document.getElementById('audios-container');
 
+
     screenConnection.onUserStatusChanged = function(event) {
         console.log('onUserStatusChanged', event);
         if ( event.status == 'offline' ) {
             for (var i=0; i<user_list.length; i++ ) {
                 if ( user_list[i].id == event.userid ) {
                     // console.log('slice', i);
+                    var stream_index = getStreamIndexByStreamId(event.stream_id);
+                    media_streams.splice(stream_index, 1);
                     user_list.splice(i, 1);
                     updateUserList();
                     return;
@@ -155,31 +172,24 @@ $(document).ready( function() {
 
     audioConnection.onstream = function (event) {
         console.log('onAudiostream', event);
-        audio_streams.push(event.stream);
-        var width = event.mediaElement.clientWidth || audioConnection.audiosContainer.clientWidth;
+        var user_name = event.extra.fullName;
+        var user_id = event.userid;
+        
+        if ( user_name ) {
+            user_list.push({ 'id': user_id, 'name': user_name, 'isMuted': false, 'stream_id': event.streamid });
+            updateUserList();
+        }
 
-        // if ( !isClient && event.type == 'remote' ) {
-        //     event.stream.mute();
-        // }
+        media_streams.push(event.stream);
+        console.log(event.stream.getAudioTracks()[0].enabled)
+        var width = event.mediaElement.clientWidth || audioConnection.audiosContainer.clientWidth;
 
         var mediaElement = getMediaElement(event.mediaElement, {
             title: event.userid,
             buttons: ['full-screen', 'mute-audio', 'mute-video'],
             width: width,
             showOnMouseEnter: false,
-            // onRecordingStarted: function( type ) {
-            //     console.log('recording started', event, screenConnection);
-            //     recorder.startRecording();
-            //     var i_recorder = recorder.getInternalRecorder();
-            //     i_recorder.addStreams(audio_streams);
-                
-            // },
-            // onRecordingStopped: function( type ) {
-            //     console.log('recording stopped', type, recorder);
-            //     recorder.stopRecording(function(singleWebM) {
-            //         recorder.save('1.webm');
-            //     });
-            // }
+
         });
         audioConnection.audiosContainer.appendChild(mediaElement);
     };
@@ -187,13 +197,7 @@ $(document).ready( function() {
     screenConnection.onstream = function(event) {
         console.log('onstream', event, 'Extra-----------------', event.extra);
 
-        var options = {
-            type: 'video',
-            // recorderType: MediaStreamRecorder,
-            // mimeType: 'video/webm'
-        };
-        
-        recorder = RecordRTC([event.stream], options);
+        media_streams.push(event.stream);
 
         if ( !isClient ) {
             // event.mediaElement.muted = true;
@@ -206,9 +210,23 @@ $(document).ready( function() {
             showOnMouseEnter: false,
             onRecordingStarted: function( type ) {
                 console.log('recording started', event, screenConnection);
+                var options = {
+                    type: 'video',
+                    video: {
+                        width: 1280,
+                        height: 720
+                    }
+                    // recorderType: MediaStreamRecorder,
+                    // mimeType: 'video/webm'
+                };
+                if (recorder) recorder = null
+                recorder = RecordRTC(media_streams, options);
                 recorder.startRecording();
                 var i_recorder = recorder.getInternalRecorder();
-                i_recorder.addStreams(audio_streams);
+                if (i_recorder instanceof MultiStreamRecorder) {
+                    console.log('aaaaaaaaaaaaaaaaaaaaaaaaa');
+                    i_recorder.addStreams(media_streams);
+                }
                 
             },
             onRecordingStopped: function( type ) {
@@ -245,6 +263,7 @@ $(document).ready( function() {
         getScreenConstraints(function(error, screen_constraints) {
             if (!error) {
                 screen_constraints = screenConnection.modifyScreenConstraints(screen_constraints);
+                console.log(screen_constraints);
                 callback(error, screen_constraints);
                 return;
             }
@@ -260,17 +279,17 @@ $(document).ready( function() {
 
     // on user add
     socket.on(screenConnection.socketCustomEvent, function(message) {
-        var user_name = message.name;
-        var user_id = message.userid;
-        var status = message.status;
-        // console.log(message, user_name);
+        // var user_name = message.name;
+        // var user_id = message.userid;
+        // var status = message.status;
+        // // console.log(message, user_name);
         
-        if ( user_name ) {
-            if ( status == 'online' ) {
-                user_list.push({ 'id': user_id, 'name': user_name, 'isMuted': false });
-                updateUserList();
-            }
-        }
+        // if ( user_name ) {
+        //     if ( status == 'online' ) {
+        //         user_list.push({ 'id': user_id, 'name': user_name, 'isMuted': false });
+        //         updateUserList();
+        //     }
+        // }
     });
 
 
@@ -281,7 +300,7 @@ $(document).ready( function() {
         (function reCheckRoomPresence() {
             screenConnection.checkPresence(meeting_id, function(isRoomExists) {
                 if(isRoomExists) {                   
-                    socket.emit(screenConnection.socketCustomEvent, { name: screenConnection.extra.fullName, userid: screenConnection.userid, status: 'online'});
+                    socket.emit(screenConnection.socketCustomEvent, { name: audioConnection.extra.fullName, userid: screenConnection.userid, status: 'online'});
                     screenConnection.join(meeting_id);
                     audioConnection.join(meeting_id + 'audio');
                     return;
@@ -324,12 +343,14 @@ $(document).ready( function() {
     });
     
     $(".dcm-btn").click(function() {
+        $dicom_path = $(this).data('dicom-path');
         toggleLeft('display-panel');
         $(".body-back").css('display', 'none');
         document.getElementById("frame-content").src = "https://www.decans.cn:3000/2c04ea71666ff20027dd9845baa0e0d5";
     });
     
     $(".stl-btn").click(function() {
+        $stl_path = $(this).data('stl-path');
         toggleLeft('display-panel');
         $(".body-back").css('display', 'none');
         document.getElementById("frame-content").src = "https://www.decans.cn/stl-operation/";
@@ -348,7 +369,7 @@ $(document).ready( function() {
 
     $(".btn-record-start").click(function() {
         console.log(screenConnection.peers);
-        // audio_streams
+        // media_streams
         // connection.join('sj3j8d8n2');
     })
 
@@ -377,6 +398,33 @@ $(document).ready( function() {
               });
             return;
         }
+        $.ajax({
+            "url": "./lib/ajax.php",
+            "type": "post",
+            "data": {
+                type: 'get-dcm-stl',
+                user_id: user_id
+            },
+            success: function(res) {
+                var dcm_stl_arr = JSON.parse(res);
+                console.log(dcm_stl_arr);
+                var u_html = '';
+                for(var i=0; i<dcm_stl_arr.length; i++) {
+                    u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-dicom-path='"+dcm_stl_arr[i].dicom_path+"' class='button dcm-btn'>Dcm Viewer</button></div>";
+                    if ( dcm_stl_arr[i].stl_path ) {
+                        u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-dicom-path='"+dcm_stl_arr[i].stl_path+"' class='button stl-btn'>Stl Viewer</button></div>";
+                    }
+                    // projects_array.push({
+                    //     "id": res[i].remote_id,
+                    //     "project_name": res[i].name,
+                    //     "meeting_id": res[i].meeting_id,
+                    //     "username": res[i].username,
+                    //     "user_id": res[i].user_id
+                    // });
+                }
+                $(".dcm-list").html(u_html);
+          }
+        });
         closeDialog();
     })
     project_table = $("#project-table").DataTable({
@@ -449,4 +497,26 @@ $(document).ready( function() {
             $(".darkpage").css('left', '-255px');
         }
     };
+
+    $(".microphone-mute-owner").on('click', function() {
+        if ( media_streams.length > 0 ) {
+            media_streams[0].getAudioTracks()[0].enabled = !media_streams[0].getAudioTracks()[0].enabled;
+            if ( media_streams[0].getAudioTracks()[0].enabled ) {
+                $(this).html('<i class="fas fa-microphone"></i>');
+            } else {
+                $(this).html('<i class="fas fa-microphone-slash"></i>');
+            }
+        }
+    });
+
+    $(".speaker-mute-owner").on('click', function() {
+        if ( media_streams.length > 0 ) {
+            isSpeakerOn = !isSpeakerOn;
+            if ( isSpeakerOn ) {
+                $(this).html('<i class="fas fa-volume-up"></i>');
+            } else {
+                $(this).html('<i class="fas fa-volume-mute"></i>');
+            }
+        }
+    })
 })

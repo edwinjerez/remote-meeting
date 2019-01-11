@@ -268,7 +268,7 @@ function getMediaElement(mediaElement, config) {
     var times = 0;
 
     function adjustControls() {
-        mediaControls.style.marginLeft = (mediaElementContainer.clientWidth - mediaControls.clientWidth - 2) + 'px';
+        mediaControls.style.marginLeft = (mediaElementContainer.clientWidth - mediaControls.clientWidth - 2) / 2 + 'px';
 
         if (slider) {
             slider.style.width = (mediaElementContainer.clientWidth / 3) + 'px';
@@ -276,7 +276,7 @@ function getMediaElement(mediaElement, config) {
 
             if (zoom) zoom.style['border-top-right-radius'] = '5px';
         } else {
-            volumeControl.style.marginLeft = (mediaElementContainer.clientWidth - volumeControl.clientWidth - 2) + 'px';
+            volumeControl.style.marginLeft = (mediaElementContainer.clientWidth - volumeControl.clientWidth - 2) / 2 + 70+ 'px';
         }
 
         // volumeControl.style.marginTop = (mediaElementContainer.clientHeight - volumeControl.clientHeight - 2) + 'px';

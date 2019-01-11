@@ -27,9 +27,9 @@
     <link rel="stylesheet" href="./assets/css/cdn/sweetalert2.min.css"/>
     <script src="./assets/js/cdn/sweetalert2.min.js"></script>
 	<script type="text/javascript" src="./assets/js/global.js"></script>
+	<script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
 	<script type="text/javascript" src="./assets/js/main.js"></script>
 	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
-	<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 	<!-- scripts used for screen-sharing -->
 	<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 	<script>
@@ -182,13 +182,11 @@
 	<div class="darkpage control-panel">
 		<div class="contents">
 			<div class="icon-panel">
-				<i class="fas fa-microphone-slash"></i>
-				<i class="fas fa-volume-mute"></i>
-				<i class="fas fa-user"></i>
+				<a class='microphone-mute-owner'><i class="fas fa-microphone"></i></a>
+				<a class='speaker-mute-owner' style="margin-left: 25px;"><i class="fas fa-volume-up"></i></a>
 			</div>
 			<div id="parti-list">
 				<ul class='p-list'>
-					
 				</ul>
 			</div>
 		</div>

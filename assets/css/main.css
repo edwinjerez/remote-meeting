@@ -139,3 +139,7 @@ svg {
   
   .button:focus { outline:0; }
   /*****************************************************************************************************************/
+
+  .volume-control .control:first-child {
+    border-radius: 0%!important;
+  }
