@@ -342,19 +342,6 @@ $(document).ready( function() {
         hide: { effect: "slide", direction: "right", duration: 200, easing: "easeInQuad" } 
     });
     
-    $(".dcm-btn").click(function() {
-        $dicom_path = $(this).data('dicom-path');
-        toggleLeft('display-panel');
-        $(".body-back").css('display', 'none');
-        document.getElementById("frame-content").src = "https://www.decans.cn:3000/2c04ea71666ff20027dd9845baa0e0d5";
-    });
-    
-    $(".stl-btn").click(function() {
-        $stl_path = $(this).data('stl-path');
-        toggleLeft('display-panel');
-        $(".body-back").css('display', 'none');
-        document.getElementById("frame-content").src = "https://www.decans.cn/stl-operation/";
-    })
     $(".display-btn").click(function() {
         toggleLeft('display-panel');
     });
@@ -410,9 +397,9 @@ $(document).ready( function() {
                 console.log(dcm_stl_arr);
                 var u_html = '';
                 for(var i=0; i<dcm_stl_arr.length; i++) {
-                    u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-dicom-path='"+dcm_stl_arr[i].dicom_path+"' class='button dcm-btn'>Dcm Viewer</button></div>";
+                    u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-dicom-path='"+dcm_stl_arr[i].dicom_path+"' data-tmpID='"+dcm_stl_arr[i].tmpID+"' class='button dcm-btn'>Dcm Viewer</button></div>";
                     if ( dcm_stl_arr[i].stl_path ) {
-                        u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-dicom-path='"+dcm_stl_arr[i].stl_path+"' class='button stl-btn'>Stl Viewer</button></div>";
+                        u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-stl-path='"+dcm_stl_arr[i].stl_path+"' class='button stl-btn'>Stl Viewer</button></div>";
                     }
                     // projects_array.push({
                     //     "id": res[i].remote_id,
@@ -423,6 +410,22 @@ $(document).ready( function() {
                     // });
                 }
                 $(".dcm-list").html(u_html);
+
+                //event for button
+                $(".dcm-btn").click(function() {
+                    $tmpID = $(this).data('tmpID');
+                    toggleLeft('display-panel');
+                    $(".body-back").css('display', 'none');
+                    document.getElementById("frame-content").src = "https://www.decans.cn:3000/" + $tmpID;
+                });
+                
+                $(".stl-btn").click(function() {
+                    $stl_path = $(this).data('stl-path');
+                    setCookie('stl_path', '..' + $stl_path);
+                    toggleLeft('display-panel');
+                    $(".body-back").css('display', 'none');
+                    document.getElementById("frame-content").src = "https://www.decans.cn/stl-operation/";
+                })
           }
         });
         closeDialog();
