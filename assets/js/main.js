@@ -15,6 +15,7 @@ var socket;
 var media_streams = [];
 var projects_array = [];
 var isSpeakerOn = true;
+var isOwnerRecording = false;
 
 window.enableAdapter = true; // enable adapter.js
 
@@ -69,16 +70,6 @@ function getStreamIndexByStreamId( stream_id ) {
 }
 
 $(document).ready( function() {
-    $("#btn-record-start1").on('click', function() {
-        // console.log('click');
-        // player.record().start();
-        // player.trigger('startRecord');
-    });
-    $("#btn-record-stop1").on('click', function() {
-        // player.trigger('stopRecord');
-        // player.record().stop();
-    });
-
     // ......................................................
     // ..................RTCMultiConnection Code.............
     // ......................................................
@@ -302,7 +293,7 @@ $(document).ready( function() {
                 if(isRoomExists) {                   
                     socket.emit(screenConnection.socketCustomEvent, { name: audioConnection.extra.fullName, userid: screenConnection.userid, status: 'online'});
                     screenConnection.join(meeting_id);
-                    audioConnection.join(meeting_id + 'audio');
+                    audioConnection.join('a' + meeting_id);
                     return;
                 }
                 setTimeout(reCheckRoomPresence, 5000);
@@ -332,9 +323,16 @@ $(document).ready( function() {
             // console.log('ssssssss');
             //showRoomURL(connection.sessionid);
         });
-        audioConnection.open(meeting_id + 'audio', function(isRoomCreated, roomid, error) {
-            console.log('audio_opened', isRoomCreated, roomid, error);
-        });
+        function openAudioConnection() {
+            audioConnection.open('a' + meeting_id, function(isRoomCreated, roomid, error) {
+                console.log('audio_opened', isRoomCreated, roomid, error);
+                if ( !isRoomCreated ) {
+                    // openAudioConnection();
+                }
+            });
+        }
+        setTimeout(openAudioConnection, 1000);
+        
     });
 
     $(".sexytabs").tabs({ 
@@ -354,8 +352,35 @@ $(document).ready( function() {
         toggleLeft('record-panel');
     });
 
-    $(".btn-record-start").click(function() {
-        console.log(screenConnection.peers);
+    $(".btn-record").click(function() {
+        if ( user_list.length == 0 )
+            return;
+
+        isOwnerRecording = !isOwnerRecording;
+        if ( isOwnerRecording ) { // recording started
+            $(this).html('<i class="fas fa-stop"></i>');
+            var options = {
+                type: 'video',
+                video: {
+                    width: 1280,
+                    height: 720
+                },
+                recorderType: MediaStreamRecorder,
+                // mimeType: 'video/webm'
+            };
+            if (recorder) recorder = null
+            recorder = RecordRTC(media_streams, options);
+            recorder.startRecording();
+            var i_recorder = recorder.getInternalRecorder();
+            if (i_recorder instanceof MultiStreamRecorder) {
+                i_recorder.addStreams(media_streams);
+            }
+        } else { // recording stopped
+            $(this).html('<i class="fas fa-play"></i>');
+            recorder.stopRecording(function(singleWebM) {
+                recorder.save();
+            });
+        }
         // media_streams
         // connection.join('sj3j8d8n2');
     })

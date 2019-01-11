@@ -28,6 +28,7 @@
     <script src="./assets/js/cdn/sweetalert2.min.js"></script>
 	<script type="text/javascript" src="./assets/js/global.js"></script>
 	<script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
+	<script src="./assets/js/webrtc/recordRTC.js"> </script>
 	<script type="text/javascript" src="./assets/js/main.js"></script>
 	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
 	<!-- scripts used for screen-sharing -->
@@ -39,8 +40,6 @@
 
 </head>
 <body>
-<!-- <button id="btn-record-start1">Start</button>
-	<button id="btn-record-stop1">Stop</button> -->
 <div class="client-content">
 	<div class="embed-back media-content" id="videos-container"></div>
 	<div class="embed-back media-content" id="audios-container"></div>
@@ -194,8 +193,8 @@
 	<div class="darkpage record-panel">
 		<div class="contents">
 			<div class="icon-panel">
-				<i class="fas fa-play btn-record-start"></i>
-				<i class="fas fa-stop"></i>
+				Record
+				<a class="btn-record"><i class="fas fa-play"></i></a>
 			</div>
 			<div id="parti-list">
 				<ul class='record-list'>
