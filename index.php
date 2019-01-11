@@ -28,7 +28,7 @@
     <script src="./assets/js/cdn/sweetalert2.min.js"></script>
 	<script type="text/javascript" src="./assets/js/global.js"></script>
 	<script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
-	<script src="./assets/js/webrtc/recordRTC.js"> </script>
+	<script src="./assets/js/webrtc/RecordRTC.js"> </script>
 	<script type="text/javascript" src="./assets/js/main.js"></script>
 	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
 	<!-- scripts used for screen-sharing -->
