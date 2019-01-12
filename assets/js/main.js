@@ -105,7 +105,8 @@ $(document).ready( function() {
     // comment-out below line if you do not have your own socket.io server
     // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-    screenConnection.socketMessageEvent = audioConnection.socketMessageEvent = 'audio-plus-screen-sharing-demo';
+    screenConnection.socketMessageEvent = 'audio-plus-screen-sharing-demo';
+    audioConnection.socketMessageEvent = 'audio-plus-screen-sharing-demo';
 
     socket = screenConnection.getSocket();
 
@@ -144,7 +145,7 @@ $(document).ready( function() {
     audioConnection.audiosContainer = document.getElementById('audios-container');
 
 
-    screenConnection.onUserStatusChanged = function(event) {
+    audioConnection.onUserStatusChanged = function(event) {
         console.log('onUserStatusChanged', event);
         if ( event.status == 'offline' ) {
             for (var i=0; i<user_list.length; i++ ) {
@@ -327,6 +328,9 @@ $(document).ready( function() {
             audioConnection.open('a' + meeting_id, function(isRoomCreated, roomid, error) {
                 console.log('audio_opened', isRoomCreated, roomid, error);
                 if ( !isRoomCreated ) {
+                    audioConnection.checkPresence('a' + meeting_id, function(isRoomExists) {
+                        console.log('DDDDDDDDDDD', isRoomExists);
+                    });
                     // openAudioConnection();
                 }
             });
@@ -422,7 +426,7 @@ $(document).ready( function() {
                 console.log(dcm_stl_arr);
                 var u_html = '';
                 for(var i=0; i<dcm_stl_arr.length; i++) {
-                    u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-dicom-path='"+dcm_stl_arr[i].dicom_path+"' data-tmpID='"+dcm_stl_arr[i].tmpID+"' class='button dcm-btn'>Dcm Viewer</button></div>";
+                    u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-dicom-path='"+dcm_stl_arr[i].dicom_path+"' data-tmpid='"+dcm_stl_arr[i].tmpID+"' class='button dcm-btn'>Dcm Viewer</button></div>";
                     if ( dcm_stl_arr[i].stl_path ) {
                         u_html += "<li><div class='media-body'><span>"+dcm_stl_arr[i].dicomname+"</span></div><div class='media-right'><button data-stl-path='"+dcm_stl_arr[i].stl_path+"' class='button stl-btn'>Stl Viewer</button></div>";
                     }
@@ -438,7 +442,8 @@ $(document).ready( function() {
 
                 //event for button
                 $(".dcm-btn").click(function() {
-                    $tmpID = $(this).data('tmpID');
+                    $tmpID = $(this).data('tmpid');
+                    console.log($tmpID);
                     toggleLeft('display-panel');
                     $(".body-back").css('display', 'none');
                     document.getElementById("frame-content").src = "https://www.decans.cn:3000/" + $tmpID;
